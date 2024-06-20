@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Horas Trabalhadas</title>
+</head>
+<body>
+    <h1>Calculadora de Horas Trabalhadas</h1>
+    <form id="workHoursForm">
+        <label for="startWork">Início do expediente (HH:MM): </label>
+        <input type="time" id="startWork" required><br><br>
+        
+        <label for="startBreak">Saída para o intervalo (HH:MM): </label>
+        <input type="time" id="startBreak" required><br><br>
+        
+        <label for="endBreak">Retorno do intervalo (HH:MM): </label>
+        <input type="time" id="endBreak" required><br><br>
+        
+        <label for="endWork">Fim do expediente (HH:MM): </label>
+        <input type="time" id="endWork"><br><br>
+        
+        <button type="submit">Calcular Horas Trabalhadas</button>
+        <button type="button" id="realTimeButton">Ver em Tempo Real</button>
+    </form>
+    
+    <h2 id="result"></h2>
+    <h2 id="falta"></h2>
+
+    <script>
+        let intervalId;
+
+        document.getElementById('workHoursForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            calculateWorkHours();
+        });
+
+        document.getElementById('realTimeButton').addEventListener('click', function() {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+            updateRealTime();
+        });
+
+        function updateRealTime() {
+            calculateWorkHours();
+            
+            const now = new Date();
+            const secondsUntilNextMinute = 60 - now.getSeconds();
+            const millisecondsUntilNextMinute = secondsUntilNextMinute * 1000;
+
+            setTimeout(() => {
+                calculateWorkHours();
+                intervalId = setInterval(calculateWorkHours, 60000);
+            }, millisecondsUntilNextMinute);
+        }
+
+        function calculateWorkHours() {
+            // Obtendo os valores dos inputs
+            const startWork = document.getElementById('startWork').value;
+            const startBreak = document.getElementById('startBreak').value;
+            const endBreak = document.getElementById('endBreak').value;
+            let endWork = document.getElementById('endWork').value;
+
+            // Se o usuário não informar o fim do expediente, usa o horário atual
+            if (!endWork) {
+                const now = new Date();
+                endWork = now.toTimeString().slice(0, 5); // Formato HH:MM
+            }
+
+            // Convertendo as horas para minutos
+            function timeToMinutes(time) {
+                const [hours, minutes] = time.split(':').map(Number);
+                return hours * 60 + minutes;
+            }
+
+            const startWorkMinutes = timeToMinutes(startWork);
+            const startBreakMinutes = timeToMinutes(startBreak);
+            const endBreakMinutes = timeToMinutes(endBreak);
+            const endWorkMinutes = timeToMinutes(endWork);
+
+            // Calculando o tempo trabalhado
+            const morningWorkMinutes = startBreakMinutes - startWorkMinutes;
+            const afternoonWorkMinutes = endWorkMinutes - endBreakMinutes;
+            const totalWorkMinutes = morningWorkMinutes + afternoonWorkMinutes;
+
+            // Convertendo os minutos de volta para horas e minutos
+            const hoursWorked = Math.floor(totalWorkMinutes / 60);
+            const minutesWorked = totalWorkMinutes % 60;
+
+            // Calculando o tempo que falta para completar 8 horas
+            const remainingMinutes = 480 - totalWorkMinutes;
+            const remainingHours = Math.floor(remainingMinutes / 60);
+            const remainingMinutesFinal = remainingMinutes % 60;
+
+            // Exibindo o resultado
+            document.getElementById('result').innerText = `Você trabalhou ${hoursWorked} horas e ${minutesWorked} minutos.`;
+            document.getElementById('falta').innerText = `Faltam ${remainingHours} horas e ${remainingMinutesFinal} minutos para completar 8 horas de trabalho.`;
+        }
+    </script>
+</body>
+</html>
