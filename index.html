@@ -49,6 +49,8 @@
             const secondsUntilNextMinute = 60 - now.getSeconds();
             const millisecondsUntilNextMinute = secondsUntilNextMinute * 1000;
 
+            console.log(`Updating in ${millisecondsUntilNextMinute} milliseconds`);
+
             setTimeout(() => {
                 calculateWorkHours();
                 intervalId = setInterval(calculateWorkHours, 60000);
@@ -62,10 +64,13 @@
             const endBreak = document.getElementById('endBreak').value;
             let endWork = document.getElementById('endWork').value;
 
+            console.log(`Start Work: ${startWork}, Start Break: ${startBreak}, End Break: ${endBreak}, End Work: ${endWork}`);
+
             // Se o usuário não informar o fim do expediente, usa o horário atual
             if (!endWork) {
                 const now = new Date();
                 endWork = now.toTimeString().slice(0, 5); // Formato HH:MM
+                console.log(`End Work (current time): ${endWork}`);
             }
 
             // Convertendo as horas para minutos
@@ -78,6 +83,8 @@
             const startBreakMinutes = timeToMinutes(startBreak);
             const endBreakMinutes = timeToMinutes(endBreak);
             const endWorkMinutes = timeToMinutes(endWork);
+
+            console.log(`Minutes - Start Work: ${startWorkMinutes}, Start Break: ${startBreakMinutes}, End Break: ${endBreakMinutes}, End Work: ${endWorkMinutes}`);
 
             // Calculando o tempo trabalhado
             const morningWorkMinutes = startBreakMinutes - startWorkMinutes;
@@ -96,6 +103,8 @@
             // Exibindo o resultado
             document.getElementById('result').innerText = `Você trabalhou ${hoursWorked} horas e ${minutesWorked} minutos.`;
             document.getElementById('falta').innerText = `Faltam ${remainingHours} horas e ${remainingMinutesFinal} minutos para completar 8 horas de trabalho.`;
+
+            console.log(`Result: ${hoursWorked} hours and ${minutesWorked} minutes worked, ${remainingHours} hours and ${remainingMinutesFinal} minutes remaining`);
         }
     </script>
 </body>
